@@ -1,0 +1,26 @@
+.status-active {
+    background-color: #c8e6c9;
+    color: #508854;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .status-deactivated {
+    background-color: #ffcdd2;
+    color: #c63737;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .required-sign {
+    color: red;
+  }
+
+  .actionButtons{
+    display: flex;
+    justify-content: space-around;
+  }

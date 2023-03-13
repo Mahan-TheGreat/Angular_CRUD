@@ -1,1 +1,131 @@
-<p>table works!</p>
+<p-toast></p-toast>
+<div class="main-container-editdata">
+    <p-toolbar styleClass="mb-1 ">
+        <ng-template pTemplate="left">
+            <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
+                (click)="addNew()"></button>
+        </ng-template>
+
+        <ng-template pTemplate="right">
+            <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input #productSearchInput pInputText type="text"
+                    (input)="productTable.filterGlobal(productSearchInput.value, 'contains')" placeholder="Search..." />
+            </span>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table #productTable [value]="tableValues" [resizableColumns]="true"
+        styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped" [rows]="10"
+        [globalFilterFields]="['name','price']" [paginator]="true" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [tableStyle]="{'min-width': '100%'}">
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th pResizableColumn>Image</th>
+                <th pResizableColumn>Name</th>
+                <th pResizableColumn>Price</th>
+                <th pResizableColumn>Quantity</th>
+                <th pResizableColumn>Discount Percent</th>
+                <th pResizableColumn>Availability</th>
+                <th pResizableColumn>Actions</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-product>
+            <tr>
+                <td>
+                    <img width="100" [src]="product.ImagePath" [alt]="product.name">
+                </td>
+                <td>
+                    {{product.name}}
+                </td>
+                <td>
+                    {{product.price}}
+                </td>
+                <td>
+                    {{product.quantity}}
+                </td>
+                <td>
+                    <span [class]="product.isDiscountApplicable ? 'status-active' : 'status-deactivated'">
+                        {{product.isDiscountApplicable ? product.percentDiscount : "No Discount"}}</span>
+                </td>
+                <td>
+                    <span [class]="product.isActive ? 'status-active' : 'status-deactivated'">
+                        {{product.isActive ? "Available" : "Out Of Stock"}}</span>
+                </td>
+
+                <td class="actionButtons">
+                    <button pButton pRipple icon="pi pi-pencil" *ngIf="product.isActive"
+                        class="p-button-rounded p-button-success mr-2" (click)="showDialog(product)" pTooltip="Edit"
+                        tooltipPosition="top"></button>
+                    <button *ngIf="product.isActive" pButton pRipple icon="pi pi-trash"
+                        class="p-button-rounded p-button-warning" pTooltip="Deactivate" tooltipPosition="top"
+                        (click)="deactivateData(product)"></button>
+                    <button *ngIf="!product.isActive" pButton pRipple icon="pi pi-check"
+                        class="p-button-rounded p-button-info" pTooltip="Activate" tooltipPosition="top"
+                        (click)="activateData(product)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="showEditPopup" [style]="{width: '75vw'}" (onHide)="hideDialog()" [header]="header" [modal]="true"
+    styleClass="p-fluid">
+    <ng-container [formGroup]="editProductForm">
+        <ng-template pTemplate="content">
+            <div class="field">
+                <label for="Image">Image <span class="required-sign">*</span></label>
+                <!-- <img width="100" [src]="selectedProduct.ImagePath" [alt]="selectedProduct.name"> -->
+                <p-fileUpload #imageuploader name="file[]" class="file-uploader" (onRemove)="removeSelectedImage()"
+                    (onClear)="removeSelectedImage()" [maxFileSize]="5000000"
+                    (change)="handleFileChange() " [showUploadButton]="false"></p-fileUpload>
+                <!-- <small class="p-error" *ngIf="Image!.invalid && Image!.dirty">Image is required.</small> -->
+            </div>
+            <div class="field">
+                <label for="name">Name <span class="required-sign">*</span></label>
+                <input type="text" pInputText id="name" formControlName="name" autofocus />
+                <small class="p-error" *ngIf="Name!.invalid && Name!.dirty">Name is required.</small>
+            </div>
+            <div class="field">
+                <label for="price">Price <span class="required-sign">*</span></label>
+                <input type="number" pInputText id="price" formControlName="price" autofocus />
+                <small class="p-error" *ngIf="Price!.invalid && Price!.dirty">Price is required!</small>
+            </div>
+            <div class="field">
+                <label for="quantity">Quantity <span class="required-sign">*</span></label>
+                <input type="number" pInputText id="quantity" formControlName="quantity" autofocus />
+                <small class="p-error" *ngIf="Quantity!.invalid && Quantity!.dirty">Quantity is required!</small>
+            </div>
+            <div class="field">
+                <label for="description">Description <span class="required-sign">*</span></label>
+                <textarea type="text" pInputText id="description" formControlName="description" autofocus></textarea>
+                <small class="p-error" *ngIf="Name!.invalid && Name!.dirty">Description is required.</small>
+            </div>
+            <div class="field">
+                <label>Discount Available <span class="required-sign">*</span></label><br>
+                <input type="radio" formControlName="isDiscountApplicable" value="true"  />Yes
+                <input type="radio" formControlName="isDiscountApplicable" value="false" />No
+                <small class="p-error" *ngIf="IsDiscount!.invalid && IsDiscount!.dirty">Please select one option!</small>
+            </div>
+            <div class="field">
+                <label for="discount">Discount Percent <span class="required-sign">*</span></label>
+                <input type="number" pInputText id="discount" formControlName="percentDiscount" autofocus />
+                <small class="p-error" *ngIf="PercentDiscount!.invalid && PercentDiscount!.dirty">Discount percent is required on discounted products!</small>
+            </div>
+            
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+            <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                (click)="hideDialog()"></button>
+            <button pButton pRipple label="Save" type="submit" icon="pi pi-check" class="p-button-text" (click)="save()"
+                *ngIf="!isAddProduct"></button>
+            <button pButton pRipple label="Add" type="submit" icon="pi pi-plus" class="p-button-text" (click)="save()"
+                *ngIf="isAddProduct"></button>
+        </ng-template>
+    </ng-container>
+
+</p-dialog>
