@@ -21,6 +21,8 @@ export class TableComponent implements OnInit{
   isAddProduct = false;
   isFileSelected = false;
 
+  isDiscountAvailable = false;
+
   fileNameBase64 = '';
 
   imageDTO  = {
@@ -29,13 +31,21 @@ export class TableComponent implements OnInit{
     base64String: ''
   }
 
-  selectedProduct!: product;
+  selectedProduct: product = {id: 0,
+  name: '',
+  description: '',
+  price: 0.00,
+  quantity: 0,
+  isDiscountApplicable: false,
+  percentDiscount: 0,
+  isActive: true
+  }
   editProductForm = new FormGroup({
     name: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
     price: new FormControl(0,[Validators.required,Validators.min(0)]),
     quantity: new FormControl(0,[Validators.required,Validators.min(0)]),
-    isDiscountApplicable: new FormControl(false,),
+    isDiscountApplicable: new FormControl('',[Validators.required]),
     percentDiscount: new FormControl(0,[Validators.required,Validators.min(0)])  });
 
 get Name() {
@@ -77,46 +87,30 @@ private GetAllProducts(){
   })
 }
 addProduct(){
-  const product = 
-      { 
-        name: this.selectedProduct.name,
-        logo: new ImageDTO(this.imageDTO),
-        isActive: this.selectedProduct.isActive 
-      }
-      //   this._clientService.post(new PostClientCommand(client))
-      // .subscribe({
-      //     next: res => {
-      //         this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Client Added', life: 3000 });
-      //         this.GetAllClients();
-      //     },
-      //     error: err => {
-      //         this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Something  wrong! Please try again.', life: 3000 });
-      //     }
-      // })
+        this._productService.addProduct(this.selectedProduct)
+             .subscribe({
+          next: res => {
+            console.log(res)
+              this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Product Added', life: 3000 });
+              this.GetAllProducts();
+          },
+          error: err => {
+              this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Something  wrong! Please try again.', life: 3000 });
+          }
+      })
 }
 updateProduct(){
-  const product = 
-      { 
-        id: this.selectedProduct.id,
-        name: this.selectedProduct.name,
-        logo: new ImageDTO(this.imageDTO),
-        isActive: this.selectedProduct.isActive 
-      }
-  // this._clientService.updateItemDetails(this.selectedProduct.id, new UpdateClientCommand(client))
-  //     .subscribe({
-  //         next: res => {
-  //             if (res == 1) {
-  //                 this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Client Updated', life: 3000 });
-  //                 this.GetAllClients();
-
-  //             } else {
-  //                 this._messageService.add({ severity: 'error', summary: 'Failed', detail: 'Something went wrong! Please try again.', life: 3000 });
-  //             }
-  //         },
-  //         error: err => {
-  //             this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Something went wrong! Please try again.', life: 3000 });
-  //         }
-  //     })
+  console.log(this.selectedProduct)
+  this._productService.updateProduct(this.selectedProduct.id, this.selectedProduct)
+      .subscribe({
+          next: res => {
+                  this._messageService.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
+                  this.GetAllProducts();
+          },
+          error: err => {
+              this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Something went wrong! Please try again.', life: 3000 });
+          }
+      })
 }
 
 deactivateData(selectedProduct: product) {
@@ -150,9 +144,9 @@ showDialog($event: any) {
   this.editProductForm.get('description')?.patchValue(this.selectedProduct.description);
   this.editProductForm.get('price')?.patchValue(this.selectedProduct.price);
   this.editProductForm.get('quantity')?.patchValue(this.selectedProduct.quantity);
-  this.editProductForm.get('isDiscountApplicable')?.patchValue(this.selectedProduct.isDiscountApplicable!);
+  this.editProductForm.get('isDiscountApplicable')?.patchValue(JSON.stringify(this.selectedProduct.isDiscountApplicable!));
   this.editProductForm.get('percentDiscount')?.patchValue(this.selectedProduct.percentDiscount!);
-
+  this.isDiscountAvailable = this.selectedProduct.isDiscountApplicable!;
   // this.imageDTO.filePath = this.selectedProduct.logoPath;
   this.showEditPopup = true;
 
@@ -168,10 +162,10 @@ checkNull() {
     isNull = true;
     return isNull;
   }
-  if((this.isAddProduct && !this.isFileSelected)){
-      isNull = true;
-      return isNull;
-  }
+  // if((this.isAddProduct && !this.isFileSelected)){
+  //     isNull = true;
+  //     return isNull;
+  // }
   return isNull;
 }
 save() {
@@ -179,7 +173,7 @@ save() {
     this._messageService.add({ severity: 'error', summary: 'Error', detail: 'Please Fill up the required field.', life: 3000 });
     return;
   }
-  
+  console.log(this.editProductForm.value)
   //for Image upload
     // if (!this.isFileSelected) {
     //   this.imageDTO.filePath = this.editProductForm.value.logo!;
@@ -188,7 +182,7 @@ save() {
       this.selectedProduct.description = this.editProductForm.value.description!;
       this.selectedProduct.price = this.editProductForm.value.price!;
       this.selectedProduct.quantity = this.editProductForm.value.quantity!;
-      this.selectedProduct.isDiscountApplicable = this.editProductForm.value.isDiscountApplicable!;
+      this.selectedProduct.isDiscountApplicable = JSON.parse(this.editProductForm.value.isDiscountApplicable!);
       this.selectedProduct.percentDiscount = this.editProductForm.value.percentDiscount!;
 
       if (!this.isAddProduct) {
@@ -244,4 +238,12 @@ removeSelectedImage() {
   this.isFileSelected = false;
   this.imageDTO = {fileName:'',filePath:'',base64String:""}
 }
+
+handleChange(e: any){
+  this.isDiscountAvailable = JSON.parse(e.target.value);
+  this.editProductForm.patchValue({
+      isDiscountApplicable: e.target.value
+  }) 
+}
+
 }
