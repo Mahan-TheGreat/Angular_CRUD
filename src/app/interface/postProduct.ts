@@ -1,5 +1,6 @@
+import { ImageDTO } from "./image";
 
-export interface product{
+export interface postProduct{
     id: number,
     name: string,
     description: string,
@@ -7,7 +8,7 @@ export interface product{
     quantity: number,
     isDiscountApplicable?: boolean,
     percentDiscount?: number,
-    imagePath: string,
+    imagePath: ImageDTO,
     isActive: boolean
 
 }
