@@ -36,7 +36,7 @@
         <ng-template pTemplate="body" let-product>
             <tr>
                 <td>
-                    <img width="100" [src]="product.ImagePath" [alt]="product.name">
+                    <img width="100" [src]="product.imagePath" [alt]="product.name" class="image-table">
                 </td>
                 <td>
                     {{product.name}}
@@ -78,11 +78,11 @@
         <ng-template pTemplate="content">
             <div class="field">
                 <label for="Image">Image <span class="required-sign">*</span></label>
-                <!-- <img width="100" [src]="selectedProduct.ImagePath" [alt]="selectedProduct.name"> -->
+                <img width="100" [src]="selectedProduct.imagePath" [alt]="selectedProduct.name">
                 <p-fileUpload #imageuploader name="file[]" class="file-uploader" (onRemove)="removeSelectedImage()"
                     (onClear)="removeSelectedImage()" [maxFileSize]="5000000"
                     (change)="handleFileChange() " [showUploadButton]="false"></p-fileUpload>
-                <!-- <small class="p-error" *ngIf="Image!.invalid && Image!.dirty">Image is required.</small> -->
+                <small class="p-error" *ngIf="Image!.invalid && Image!.dirty">Image is required.</small>
             </div>
             <div class="field">
                 <label for="name">Name <span class="required-sign">*</span></label>
