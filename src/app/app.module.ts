@@ -16,6 +16,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ProductService } from './services/product.service';
 import { HttpClientModule } from '@angular/common/http';
 import { InputTextModule } from 'primeng/inputtext';
+import { ImageService } from './services/ImageService';
 
 
 
@@ -40,7 +41,8 @@ import { InputTextModule } from 'primeng/inputtext';
   providers: [
     ConfirmationService,
     MessageService,
-    ProductService
+    ProductService,
+    ImageService
 
   ],
   bootstrap: [AppComponent]
